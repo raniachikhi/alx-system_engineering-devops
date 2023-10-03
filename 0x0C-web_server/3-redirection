@@ -35,14 +35,11 @@ echo "server {
     index index.html index.htm index.nginx-debian.html;
 
     location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+        return 301 https://github.com/dashboard;
     }
 }" | sudo tee /etc/nginx/sites-available/redirect
 
-# Enable the new site configuration
 sudo ln -s /etc/nginx/sites-available/redirect /etc/nginx/sites-enabled/
 
-
-# Test Nginx configuration and reload
 sudo nginx -t
 sudo service nginx reload
