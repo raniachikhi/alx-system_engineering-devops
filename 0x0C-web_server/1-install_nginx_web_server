@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
-# Installs Nginx and configures it to serve a "Hello World!" page
-apt-get update
-apt-get install -y nginx
-echo "Hello World!" > /var/www/html/index.html
-service nginx start
+# Update package list
+sudo apt-get update
+sudo apt-get install -y nginx
+if ! systemctl is-active --quiet nginx; then
+    sudo systemctl start nginx
+fi
+echo "server {
+    listen 80 default_server;
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+        if ($request_method = GET) {
+            add_header Content-Type 'text/plain; charset=UTF-8';
+            add_header Content-Length 12;
+            echo 'Hello World!';
+        }
+    }
+}" | sudo tee /etc/nginx/sites-available/default > /dev/null
+sudo systemctl reload nginx
