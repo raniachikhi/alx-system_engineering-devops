@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 # Installs Nginx with the following configurations:
-#+    Listens on port 80.
-#+    Returns a page containing "Hello World!" when queried
-#++    at the root with a curl GET request.
+#    - Listens on port 80.
+#    - Returns a page containing "Hello World!" when queried
+#      at the root with a curl GET request.
+#    - Configures a redirection from /redirect_me to a YouTube video.
 
-#  updates the package lists for available software packages.
+# Update the package lists for available software packages.
 apt-get update
-# installs the Nginx web server.
+# Install the Nginx web server.
 apt-get install -y nginx
 
-# Creates the /etc/nginx/html directory, which will serve as the document root directory for Nginx.
+# Create the /etc/nginx/html directory, which will serve as the document root directory for Nginx.
 mkdir /etc/nginx/html
-#  creates an empty index.html file inside the /etc/nginx/html directory.
+# Create an empty index.html file inside the /etc/nginx/html directory.
 touch /etc/nginx/html/index.html
-#  sets the content of the index.html file to "Hello World!" using the echo command.
+# Set the content of the index.html file to "Hello World!" using the echo command.
 echo "Hello World!" > /etc/nginx/html/index.html
-# Sets Nginx to listen on port 80 and serve files from the /etc/nginx/html directory.
+
+# Configure the Nginx site to listen on port 80 and serve files from the /etc/nginx/html directory.
 printf %s "server {
      listen      80;
      listen      [::]:80 default_server;
@@ -39,7 +41,9 @@ echo "server {
     }
 }" | sudo tee /etc/nginx/sites-available/redirect
 
+# Enable the new site configuration
 sudo ln -s /etc/nginx/sites-available/redirect /etc/nginx/sites-enabled/
 
+# Test Nginx configuration and reload
 sudo nginx -t
 sudo service nginx reload
