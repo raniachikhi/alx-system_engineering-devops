@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Installs Nginx
+# Installs Nginx and configures it to serve a "Hello World!" page
 
+# Update the package list and install Nginx with the -y flag
 apt-get update
 apt-get install -y nginx
-echo "Hello World" > /var/www/html/index.html
+echo "Hello World!" > /var/www/html/index.html
+
 service nginx start
