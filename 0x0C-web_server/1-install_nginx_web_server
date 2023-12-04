@@ -7,7 +7,7 @@ sudo apt-get update
 # Install Nginx
 sudo apt-get install -y nginx
 
-# Create a simple HTML file
+# Create a simple HTML file with "Hello World!"
 echo "Hello World!" | sudo tee /var/www/html/index.html
 
 # Start the Nginx service
@@ -18,4 +18,21 @@ if [ $? -eq 0 ]; then
     echo "Nginx has been installed and started successfully."
 else
     echo "Error: Nginx installation or startup failed."
+fi
+
+# Sleep for a moment to allow Nginx to start
+sleep 2
+
+# Check if Nginx is listening on port 80
+if sudo netstat -tulpen | grep ":80.*nginx"; then
+    echo "Nginx is listening on port 80."
+else
+    echo "Error: Nginx is not listening on port 80."
+fi
+
+# Check if the HTML file contains "Hello World!"
+if sudo cat /var/www/html/index.html | grep "Hello World!"; then
+    echo "HTML file contains 'Hello World!'."
+else
+    echo "Error: HTML file does not contain 'Hello World!'."
 fi
