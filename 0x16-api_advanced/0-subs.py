@@ -1,15 +1,30 @@
 #!/usr/bin/python3
 """Task 0"""
+
 import requests
+
 def number_of_subscribers(subreddit):
-    """Returns the number of subscribers
-    to the subreddit"""
+    # Reddit API endpoint for getting subreddit information
+    api_url = f"https://www.reddit.com/r/{subreddit}/about.json"
 
-    sub_info = requests.get("https://www.reddit.com/r/{}/about.json"
-                            .format(subreddit),
-                            headers={"User-Agent": "My-User-Agent"},
-                            allow_redirects=False)
-    if sub_info.status_code >= 300:
+    # Set a custom User-Agent to avoid API request issues
+    headers = {'User-Agent': 'MyRedditBot/1.0'}
+
+    try:
+        # Make a GET request to the Reddit API
+        response = requests.get(api_url, headers=headers, allow_redirects=False)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
+        # Check if the response is a redirect (invalid subreddit)
+        if response.status_code == 302:
+            return 0
+
+        # Parse the JSON response and extract the number of subscribers
+        subreddit_info = response.json().get('data', {})
+        subscribers_count = subreddit_info.get('subscribers', 0)
+
+        return subscribers_count
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error making API request: {e}")
         return 0
-
-    return sub_info.json().get("data").get("subscribers")
