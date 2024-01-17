@@ -1,50 +1,28 @@
 #!/usr/bin/python3
-"""Task 2 """
-import requests
+"""Task 2"""
 
-def recurse(subreddit, hot_list=[], after=None):
-    """ Recursive function """
-    if after is None and not is_valid_subreddit(subreddit):
+
+def recurse(subreddit, hot_list=[], count=0, after=None):
+    """ Recursive function that returns all hot posts
+    of the subreddit"""
+    import requests
+
+    sub_info = requests.get("https://www.reddit.com/r/{}/hot.json"
+                            .format(subreddit),
+                            params={"count": count, "after": after},
+                            headers={"User-Agent": "My-User-Agent"},
+                            allow_redirects=False)
+    if sub_info.status_code >= 400:
         return None
 
-    api_url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+    hot_l = hot_list + [child.get("data").get("title")
+                        for child in sub_info.json()
+                        .get("data")
+                        .get("children")]
 
-    headers = {'User-Agent': 'MyRedditBot/1.0'}
+    info = sub_info.json()
+    if not info.get("data").get("after"):
+        return hot_l
 
-    params = {'after': after} if after else {}
-
-    try:
-        response = requests.get(api_url, headers=headers, params=params, allow_redirects=False)
-        response.raise_for_status()
-
-        if response.status_code == 302:
-            return None
-
-        posts = response.json().get('data', {}).get('children', [])
-
-        for post in posts:
-            title = post['data']['title']
-            hot_list.append(title)
-
-        next_page_after = response.json().get('data', {}).get('after')
-        if next_page_after:
-            recurse(subreddit, hot_list, next_page_after)
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error making API request: {e}")
-        return None
-
-    return hot_list
-
-def is_valid_subreddit(subreddit):
-    api_url = f"https://www.reddit.com/r/{subreddit}/about.json"
-    headers = {'User-Agent': 'MyRedditBot/1.0'}
-
-    try:
-        response = requests.get(api_url, headers=headers, allow_redirects=False)
-        response.raise_for_status()
-        return response.status_code != 302
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error checking subreddit validity: {e}")
-        return False
+    return recurse(subreddit, hot_l, info.get("data").get("count"),
+                   info.get("data").get("after"))
