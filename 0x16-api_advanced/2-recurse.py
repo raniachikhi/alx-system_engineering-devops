@@ -3,6 +3,7 @@
 import requests
 
 def recurse(subreddit, hot_list=[], after=None):
+    """ Recursive function """
     if after is None and not is_valid_subreddit(subreddit):
         return None
 
